@@ -32,7 +32,7 @@ if model:
         {
             "age": 68.0, "bmi": 22.73, "elective_surgery": 0, "ethnicity": "Caucasian", "gender": "M", "height": 180.3,
             "icu_stay_type": "admit", "icu_type": "CTICU", "pre_icu_los_days": 0.541667, "weight": 73.9,
-            "apache_2_diagnosis": 113.0, "apache_3j_diagnosis": 502.01, "apache_post_operative": 0, "arf_apache": 0,
+            "apache_2_diagnosis": 113.0, "apache_3j_diagnosis": 502.01, "arf_apache": 0,
             "gcs_eyes_apache": 3.0, "gcs_motor_apache": 6.0, "gcs_unable_apache": 0.0, "gcs_verbal_apache": 4.0,
             "heart_rate_apache": 118.0, "intubated_apache": 0.0, "map_apache": 40.0, "resprate_apache": 36.0,
             "temp_apache": 39.3, "ventilated_apache": 0.0, "d1_diasbp_max": 68.0, "d1_diasbp_min": 37.0,
@@ -42,11 +42,9 @@ if model:
             "h1_diasbp_max": 68.0, "h1_diasbp_min": 63.0, "h1_heartrate_max": 119.0, "h1_heartrate_min": 108.0,
             "h1_mbp_max": 86.0, "h1_mbp_min": 85.0, "h1_resprate_max": 26.0, "h1_resprate_min": 18.0,
             "h1_spo2_max": 100.0, "h1_spo2_min": 74.0, "h1_sysbp_max": 131.0, "h1_sysbp_min": 115.0,
-            "d1_glucose_max": 168.0, "d1_glucose_min": 109.0, "d1_potassium_max": 4.0, "d1_potassium_min": 3.4,
-            "apache_4a_hospital_death_prob": 0.10, "apache_4a_icu_death_prob": 0.05, "aids": 0.0, "cirrhosis": 0.0,
+            "d1_glucose_max": 168.0, "d1_glucose_min": 109.0, "d1_potassium_max": 4.0, "d1_potassium_min": 3.4, "aids": 0.0, "cirrhosis": 0.0,
             "diabetes_mellitus": 1.0, "hepatic_failure": 0.0, "immunosuppression": 0.0, "leukemia": 0.0,
-            "lymphoma": 0.0, "solid_tumor_with_metastasis": 0.0, "apache_3j_bodysystem": "Sepsis",
-            "apache_2_bodysystem": "Cardiovascular"
+            "lymphoma": 0.0, "solid_tumor_with_metastasis": 0.0
         }
     ]
     sample_df = pd.DataFrame(sample_data)
