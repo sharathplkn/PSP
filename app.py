@@ -89,7 +89,7 @@ if model:
     st.sidebar.title("🏥 Hospital Death Predictor")
     st.sidebar.markdown("Upload patient data to predict ICU mortality outcomes.")
 
-    st.title("🎯 Predict ICU Patient Outcome")
+    st.title("🎯 Predict Patient Survival")
 
     st.markdown("### 📄 Download Sample CSV")
     sample_data = [
