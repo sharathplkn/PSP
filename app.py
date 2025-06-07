@@ -1,9 +1,72 @@
+
 import streamlit as st
 import pandas as pd
 import numpy as np
 import joblib
 
-# Load the model and preprocessing objects
+# Custom CSS styling
+st.markdown("""
+    <style>
+    /* Background and layout */
+    .main {
+        background-color: #f7fbff;
+    }
+    body {
+        background-image: url("https://www.transparenttextures.com/patterns/white-wall-3.png");
+        background-size: cover;
+    }
+
+    /* Button styles */
+    .stDownloadButton button, .stButton button {
+        background-color: #07072c !important;
+        color: white !important;
+        font-weight: 600;
+        border-radius: 8px;
+        padding: 10px 16px;
+    }
+    .stDownloadButton button:hover, .stButton button:hover {
+        background-color: #1a1a5c !important;
+    }
+
+    /* Section headings */
+    h1, h2, h3 {
+        color: #07072c;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    /* Divider style */
+    .divider {
+        border-top: 3px solid #07072c;
+        margin-top: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Result cards */
+    .result-card {
+        padding: 1rem;
+        margin-top: 1rem;
+        border-radius: 10px;
+        color: white;
+        font-weight: bold;
+        text-align: center;
+    }
+    .survival {
+        background-color: #28a745;
+    }
+    .death {
+        background-color: #dc3545;
+    }
+
+    /* Sidebar */
+    .css-1d391kg, .css-1v0mbdj {
+        background-color: #f2f2ff;
+        color: #07072c;
+    }
+
+    </style>
+""", unsafe_allow_html=True)
+
+# Load resources
 @st.cache_resource
 def load_resources():
     try:
@@ -17,16 +80,17 @@ def load_resources():
         processed_columns = joblib.load('processed_columns.joblib')
         return model, num_imputer, scaler, cat_imputer, encoder, numeric_features, categorical_features, processed_columns
     except FileNotFoundError:
-        st.error("Model or preprocessor files not found. Please train and save them first.")
+        st.error("Model or preprocessor files not found.")
         return None, None, None, None, None, None, None, None
 
-# Load all resources
 model, num_imputer, scaler, cat_imputer, encoder, numeric_features, categorical_features, processed_columns = load_resources()
 
 if model:
-    st.title("🏥 Hospital Death Prediction using Random Forest")
+    st.sidebar.title("🏥 Hospital Death Predictor")
+    st.sidebar.markdown("Upload patient data to predict ICU mortality outcomes.")
 
-    # 👉 Sample CSV download section
+    st.title("🎯 Predict ICU Patient Outcome")
+
     st.markdown("### 📄 Download Sample CSV")
     sample_data = [
         {
@@ -46,30 +110,26 @@ if model:
             "diabetes_mellitus": 1.0, "hepatic_failure": 0.0, "immunosuppression": 0.0, "leukemia": 0.0,
             "lymphoma": 0.0, "solid_tumor_with_metastasis": 0.0
         }
-    ]
+    ]  # Your sample dictionary as-is
     sample_df = pd.DataFrame(sample_data)
-
     sample_csv = sample_df.to_csv(index=False).encode('utf-8')
     st.download_button("📥 Download Sample CSV", data=sample_csv, file_name="sample_input.csv", mime="text/csv")
 
-    # 👉 File uploader section
-    st.markdown("### 📤 Upload Patient Data CSV")
-    st.write("Upload a CSV file with patient records to predict hospital death outcomes.")
+    st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
 
+    st.markdown("### 📤 Upload Patient Data CSV")
     uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
 
     if uploaded_file is not None:
         try:
             input_df = pd.read_csv(uploaded_file)
-
-            # Check required columns
             missing_numeric = [col for col in numeric_features if col not in input_df.columns]
             missing_categorical = [col for col in categorical_features if col not in input_df.columns]
             if missing_numeric or missing_categorical:
                 st.error(f"Missing required columns: {missing_numeric + missing_categorical}")
                 st.stop()
 
-            # 🔄 Preprocessing
+            # Preprocess
             input_num_imputed = num_imputer.transform(input_df[numeric_features])
             input_num_scaled = scaler.transform(input_num_imputed)
             input_num_scaled_df = pd.DataFrame(input_num_scaled, columns=numeric_features)
@@ -80,17 +140,14 @@ if model:
 
             input_processed = pd.concat([input_num_scaled_df, input_cat_encoded_df], axis=1)
 
-            # 🧩 Match training columns
             missing_cols = set(processed_columns) - set(input_processed.columns)
             for c in missing_cols:
                 input_processed[c] = 0
             input_processed = input_processed[processed_columns]
 
-            # 🔍 Predict
             predictions = model.predict(input_processed)
             probabilities = model.predict_proba(input_processed)[:, 1]
 
-            # 📊 Results
             result_df = input_df.copy()
             result_df["Predicted Outcome"] = ["Death" if p == 1 else "Survival" for p in predictions]
             result_df["Death Probability"] = probabilities.round(4)
@@ -99,10 +156,15 @@ if model:
             st.markdown("### ✅ Prediction Results")
             st.dataframe(result_df)
 
-            # If only one patient, display a large direct result
+            # Large Card Result if only 1 patient
             if len(result_df) == 1:
-                st.markdown("### 🩺 Patient Prediction")
-                st.markdown(f"## 👉 Will the patient die? **{'Yes' if predictions[0] == 1 else 'No'}**")
+                outcome = "death" if predictions[0] == 1 else "survival"
+                st.markdown(f"""
+                    <div class="result-card {'death' if outcome=='death' else 'survival'}">
+                        <h2>🩺 Prediction: {outcome.capitalize()}</h2>
+                        
+                    </div>
+                """, unsafe_allow_html=True)
 
             result_csv = result_df.to_csv(index=False).encode('utf-8')
             st.download_button("📥 Download Prediction Results", data=result_csv, file_name="hospital_death_predictions.csv", mime="text/csv")
